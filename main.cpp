@@ -1,5 +1,6 @@
 #include "imgui.h"
 #include "imgui-SFML.h"
+#include "AppGui.h"
 
 #include <SFML/Graphics.hpp>
 
@@ -14,6 +15,7 @@ int main()
     sf::CircleShape shape(100.f);
     shape.setFillColor(sf::Color::Green);
 
+    AppGui gui;
     sf::Clock deltaClock;
     while (window.isOpen())
     {
@@ -27,7 +29,14 @@ int main()
         ImGui::SFML::Update(window, deltaClock.restart());
 
         ImGui::Begin("Window title");
+
         ImGui::Text("Window text!");
+
+            gui.DisplayMenu();
+            gui.DisplayContent();
+            gui.DisplayActions();
+            gui.DisplayFilter(); //filter by file extensions
+        
         ImGui::End();
 
         window.clear();
