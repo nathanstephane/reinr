@@ -3,13 +3,21 @@
 #include "AppGui.h"
 
 #include <SFML/Graphics.hpp>
-
 #include <iostream>
+
+struct GuiInitSettings
+{
+    constexpr static int winFlags = ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove |
+        ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoScrollbar;
+     ImVec2 winSize;
+     ImVec2 winPos;
+     
+};
 int main()
 {
     std::cout << "Program started\n";
 
-    sf::RenderWindow window(sf::VideoMode(800, 800), "SFML works!");
+    sf::RenderWindow window(sf::VideoMode(800, 800), "reinr:: file explorer");
     ImGui::SFML::Init(window);
 
     sf::CircleShape shape(100.f);
@@ -30,11 +38,14 @@ int main()
 
         ImGui::Begin("Window title");
 
-        ImGui::Text("Window text!");
+       /* ImGui::Text("Window text!");*/
 
             gui.DisplayMenu();
+            ImGui::Separator();
             gui.DisplayContent();
+            ImGui::Separator();
             gui.DisplayActions();
+            ImGui::Separator();
             gui.DisplayFilter(); //filter by file extensions
         
         ImGui::End();
