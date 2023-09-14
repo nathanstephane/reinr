@@ -1,5 +1,7 @@
 #include "AppGui.h"
 
+namespace imgui = ImGui;
+
 void AppGui::DisplayMenu()
 {
 
@@ -57,9 +59,134 @@ void AppGui::DisplayContent()
 
 void AppGui::DisplayActions()
 {
-	ImGui::Text("ActionsDisplay");
+	if (std::filesystem::is_directory(selectedItem))
+	{
+		ImGui::Text("selected directory: %s", selectedItem.string().c_str());
+	}else if (std::filesystem::is_regular_file(selectedItem))
+	{
+		ImGui::Text("selected file: %s", selectedItem.string().c_str());
+
+	}
+	else
+	{
+		ImGui::Text("Nothing selected");
+	}
+
+	if (imgui::Button("Open") && std::filesystem::is_regular_file(selectedItem))
+	{
+		openFile();
+	}
+
+	if (imgui::Button("Rename"))
+	{
+		should_renameModal_open = true;
+		ImGui::OpenPopup("Rename File");
+		
+	}
+
+	if (imgui::Button("Delete"))
+	{
+		should_deleteModal_open = true;
+		imgui::OpenPopup("Delete File");
+	}
+	renameFilePopup();
+	deleteFilePopup();
+
+	
 
 }
+
+void AppGui::openFile()
+{
+	if (imgui::BeginPopupModal("Delete File"))
+	{
+		ImGui::EndPopup();
+
+	}
+}
+
+void AppGui::renameFilePopup()
+{
+	
+
+	if (imgui::BeginPopupModal("Rename File", &should_renameModal_open))
+	{
+		static char name_[250] = { '\0' };
+		imgui::Text("New file name: ");
+		imgui::InputText("###", name_, sizeof(name_));
+
+		if (ImGui::Button("Rename"))
+		{
+			auto new_filename_path = selectedItem.parent_path() / name_;
+			if(renameFile(selectedItem, new_filename_path))
+			{
+				should_renameModal_open = false;
+				selectedItem = new_filename_path;
+				std::memset(name_, 0, sizeof(name_));
+				
+			}
+		}
+
+
+		ImGui::EndPopup();
+	}
+}
+
+
+
+void AppGui::deleteFilePopup()
+{
+	if (imgui::BeginPopupModal("Delete File", &should_deleteModal_open))
+	{
+		ImGui::EndPopup();
+
+	}
+}
+
+bool AppGui::deleteFile(const std::filesystem::path& path)
+{
+	try
+	{
+		std::filesystem::remove(path);
+		return true;
+	}
+	catch (const std::exception& e)
+	{
+		bool open_errorPopup = true;
+		imgui::OpenPopup("Error Popup");
+		imgui::BeginPopupModal("Error Popup",&open_errorPopup);
+		imgui::Text("Error occured: %s", e.what());
+		if (imgui::Button("close"))
+		{
+			open_errorPopup = false;
+		}
+		imgui::EndPopup();
+
+		return false;
+	}
+}
+
+bool AppGui::renameFile(const std::filesystem::path& oldpath, const std::filesystem::path& newpath)
+{
+	try
+	{
+		std::filesystem::rename(oldpath, newpath);
+		return true;
+	}
+	catch (const std::exception& e)
+	{
+		imgui::OpenPopup("Error Popup");
+		imgui::BeginPopupModal("Error Popup");
+		imgui::Text("Error occured: %s", e.what());
+		imgui::EndPopup();
+
+		return false;
+	}
+
+
+}
+
+
 
 void AppGui::DisplayFilter()
 {

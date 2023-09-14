@@ -17,7 +17,7 @@ int main()
 {
     std::cout << "Program started\n";
 
-    sf::RenderWindow window(sf::VideoMode(800, 800), "reinr:: file explorer");
+    sf::RenderWindow window(sf::VideoMode(800, 800), "reinr: file explorer");
     ImGui::SFML::Init(window);
 
     sf::CircleShape shape(100.f);
