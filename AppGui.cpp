@@ -77,6 +77,7 @@ void AppGui::DisplayActions()
 		openFile();
 	}
 
+	imgui::SameLine();
 	if (imgui::Button("Rename"))
 	{
 		should_renameModal_open = true;
@@ -84,11 +85,13 @@ void AppGui::DisplayActions()
 		
 	}
 
+	imgui::SameLine();
 	if (imgui::Button("Delete"))
 	{
 		should_deleteModal_open = true;
 		imgui::OpenPopup("Delete File");
 	}
+
 	renameFilePopup();
 	deleteFilePopup();
 
@@ -98,11 +101,14 @@ void AppGui::DisplayActions()
 
 void AppGui::openFile()
 {
-	if (imgui::BeginPopupModal("Delete File"))
-	{
-		ImGui::EndPopup();
-
-	}
+	#ifdef _WIN32
+		const auto cmd = "start \"\" \"" + selectedItem.string() + "\"";
+	#elif __APPLE__
+		const auto cmd = "open \"\" \"" + selectedItem.string() + "\"";
+	#else
+		const auto cmd = "xdg-open \"\" \"" + selectedItem.string() + "\"";
+	#endif
+		std::system(cmd.c_str());
 }
 
 void AppGui::renameFilePopup()
@@ -126,7 +132,12 @@ void AppGui::renameFilePopup()
 				
 			}
 		}
+		ImGui::SameLine();
 
+		if (ImGui::Button("Cancel"))
+		{
+			should_renameModal_open = false;
+		}
 
 		ImGui::EndPopup();
 	}
@@ -138,6 +149,22 @@ void AppGui::deleteFilePopup()
 {
 	if (imgui::BeginPopupModal("Delete File", &should_deleteModal_open))
 	{
+		ImGui::Text("Are you sure you want to delete %s ?", selectedItem.filename().string().c_str());
+
+		if (ImGui::Button("Yes"))
+		{
+			if (deleteFile(selectedItem))
+			{
+				selectedItem.clear();
+				should_deleteModal_open = false;
+			}
+		}
+		ImGui::SameLine();
+
+		if (ImGui::Button("No"))
+		{
+			should_deleteModal_open = false;
+		}
 		ImGui::EndPopup();
 
 	}

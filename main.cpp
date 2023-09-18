@@ -43,6 +43,7 @@ int main()
             gui.DisplayMenu();
             ImGui::Separator();
             gui.DisplayContent();
+            ImGui::SetCursorPosY(ImGui::GetWindowHeight() - 100.f);
             ImGui::Separator();
             gui.DisplayActions();
             ImGui::Separator();
